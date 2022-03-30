@@ -15,25 +15,21 @@ const Modal = {
 
 const transactions = [
     {
-        id: 1,
         description: 'Luz',
         amount: -50000,
         date: '23/01/2021'
     }, 
     {
-        id: 2,
         description: 'Website',
         amount: 500000,
         date: '23/01/2021'
     },
     {
-        id: 3,
         description: 'Internet',
         amount: -20000,
         date: '23/01/2021'
     },
     {
-        id: 4,
         description: 'App',
         amount: 200000,
         date: '23/01/2021'
@@ -41,14 +37,49 @@ const transactions = [
 ]
 
 const Transactions = {
+    all: transactions,
+    add(transactions) {
+        Transactions.all.push(transactions)
+
+        App.reload()
+    },
+
+    remove(index) {
+        Transactions.all.splice(index, 1)
+
+        App.reload()
+    },
+
     incomes() {
-        // somar as entradas
+        let income = 0;
+        //pegar todas as transacoes
+        //para cada transacao,
+        Transactions.all.forEach((transaction) => {
+            //se ela for maior que zero
+            if( transaction.amount > 0) {
+                //somar a uma variavel e retornar a variavel
+                income +=transaction.amount;
+            }
+        })
+        return income;
     },
+
     expenses() {
-        // somar as saídas
+        let expense = 0;
+        //pegar todas as transacoes
+        //para cada transacao,
+        Transactions.all.forEach((transaction) => {
+            //se ela for menor que zero
+            if( transaction.amount < 0) {
+            //somar a uma variavel e retornar a variavel
+                expense +=transaction.amount;
+            }
+        })
+        return expense;
     },
+
     total() {
-        //entradas - saídas
+        return Transactions.incomes() + Transactions.expenses();
     }
 }
 
@@ -78,6 +109,22 @@ const DOM = {
         `
 
         return html
+    },
+
+    updateBalance() {
+        document
+            .getElementById('incomeDisplay')
+            .innerHTML = Utils.formatCurrency(Transactions.incomes())
+        document
+            .getElementById('expenseDisplay')
+            .innerHTML = Utils.formatCurrency(Transactions.expenses())
+        document
+            .getElementById('totalDisplay')
+            .innerHTML = Utils.formatCurrency(Transactions.total())
+    },
+
+    clearTransactions() {
+        DOM.transactionsContainer.innerHTML=""
     }
 }
 
@@ -99,6 +146,23 @@ const Utils = {
     }
 }
 
-transactions.forEach(function(transaction){
-    DOM.addTransaction(transaction)
-})
+const App = {
+    Init() {
+        
+        Transactions.all.forEach(transactions => {
+            DOM.addTransaction(transactions)
+        })
+        
+        DOM.updateBalance()
+        
+
+    },
+    reload() {
+        DOM.clearTransactions()
+        App.Init()
+    },
+}
+
+App.Init()
+
+
